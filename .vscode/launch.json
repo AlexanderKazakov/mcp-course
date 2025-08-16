@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "test_server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/projects/unit3/build-mcp-server/starter/test_server.py",
+            "console": "integratedTerminal",
+            "python": "${workspaceFolder}/projects/unit3/build-mcp-server/starter/.venv/bin/python"
+        }
+    ]
+}
