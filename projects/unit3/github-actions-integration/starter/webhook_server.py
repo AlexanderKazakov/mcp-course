@@ -8,25 +8,32 @@ import json
 from datetime import datetime
 from pathlib import Path
 from aiohttp import web
+from pprint import pprint
 
 # File to store events
 EVENTS_FILE = Path(__file__).parent / "github_events.json"
 
 async def handle_webhook(request):
     """Handle incoming GitHub webhook"""
+    print("Webhook received")
     try:
-        data = await request.json()
+        # First, read the raw body as text to see what we're getting
+        body = await request.text()
+        print("--- Raw Request Body ---")
+        print(body)
+        print("------------------------")
+
+        # Now, try to parse it as JSON
+        data = json.loads(body)
+        pprint(data)
         
         # Create event record
         event = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "event_type": request.headers.get("X-GitHub-Event", "unknown"),
-            "action": data.get("action"),
-            "workflow_run": data.get("workflow_run"),
-            "check_run": data.get("check_run"),
-            "repository": data.get("repository", {}).get("full_name"),
-            "sender": data.get("sender", {}).get("login")
+            "payload": data
         }
+        pprint(event)
         
         # Load existing events
         events = []
@@ -43,7 +50,12 @@ async def handle_webhook(request):
             json.dump(events, f, indent=2)
         
         return web.json_response({"status": "received"})
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        print("This likely means the request body was empty or not valid JSON.")
+        return web.json_response({"error": f"JSON Decode Error: {e}", "body_received": body}, status=400)
     except Exception as e:
+        print(f"An unexpected error occurred: {e}")
         return web.json_response({"error": str(e)}, status=400)
 
 # Create app and add route
