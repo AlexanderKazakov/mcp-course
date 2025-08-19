@@ -10,6 +10,7 @@ import subprocess
 from typing import Optional
 from pathlib import Path
 
+import requests
 from mcp.server.fastmcp import FastMCP
 
 # Initialize the FastMCP server
@@ -251,13 +252,13 @@ async def send_slack_notification(message: str) -> str:
         return "Error: SLACK_WEBHOOK_URL environment variable not set"
     
     try:
-        # TODO: Import requests library
-        # TODO: Send POST request to webhook_url with JSON payload
-        # TODO: Include the message in the JSON data
-        # TODO: Handle the response and return appropriate status
+        payload = {"text": message}
+        response = requests.post(webhook_url, json=payload)
         
-        # For now, return a placeholder
-        return f"TODO: Implement Slack webhook POST request for message: {message[:50]}..."
+        if response.status_code == 200:
+            return "Successfully sent notification to Slack"
+        else:
+            return f"Error sending notification: {response.status_code} - {response.text}"
         
     except Exception as e:
         return f"Error sending message: {str(e)}"

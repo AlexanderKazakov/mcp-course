@@ -19,7 +19,7 @@ async def handle_webhook(request):
         
         # Create event record
         event = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "event_type": request.headers.get("X-GitHub-Event", "unknown"),
             "action": data.get("action"),
             "workflow_run": data.get("workflow_run"),
